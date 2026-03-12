@@ -1,1 +1,184 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>WorkTrack — Quản Lý Giờ Làm</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
 
+  <!-- ===== AUTH SCREEN ===== -->
+  <div id="auth-screen" class="screen active">
+    <div class="auth-bg">
+      <div class="auth-blob b1"></div>
+      <div class="auth-blob b2"></div>
+    </div>
+    <div class="auth-card">
+      <div class="brand">
+        <span class="brand-icon">⏱</span>
+        <h1>WorkTrack</h1>
+        <p>Quản lý giờ làm & tính tăng ca</p>
+      </div>
+
+      <!-- Tab switcher -->
+      <div class="auth-tabs">
+        <button class="tab-btn active" onclick="switchTab('login')">Đăng nhập</button>
+        <button class="tab-btn" onclick="switchTab('register')">Đăng ký</button>
+      </div>
+
+      <!-- Login form -->
+      <div id="tab-login" class="auth-form active">
+        <div class="field">
+          <label>Email</label>
+          <input type="email" id="login-email" placeholder="you@example.com" />
+        </div>
+        <div class="field">
+          <label>Mật khẩu</label>
+          <input type="password" id="login-password" placeholder="••••••••" />
+        </div>
+        <button class="btn-primary" onclick="login()">Đăng nhập</button>
+      </div>
+
+      <!-- Register form -->
+      <div id="tab-register" class="auth-form">
+        <div class="field">
+          <label>Email</label>
+          <input type="email" id="reg-email" placeholder="you@example.com" />
+        </div>
+        <div class="field">
+          <label>Mật khẩu</label>
+          <input type="password" id="reg-password" placeholder="Tối thiểu 6 ký tự" />
+        </div>
+        <button class="btn-primary" onclick="register()">Tạo tài khoản</button>
+      </div>
+
+      <div id="auth-msg" class="auth-msg"></div>
+    </div>
+  </div>
+
+  <!-- ===== APP SCREEN ===== -->
+  <div id="app-screen" class="screen">
+
+    <!-- Top navbar -->
+    <nav class="navbar">
+      <div class="nav-brand">
+        <span>⏱</span> WorkTrack
+      </div>
+      <div class="nav-right">
+        <span id="user-email-display" class="user-email"></span>
+        <button class="btn-logout" onclick="logout()">Đăng xuất</button>
+      </div>
+    </nav>
+
+    <div class="container">
+
+      <!-- ===== FILTER + ADD ROW ===== -->
+      <div class="toolbar">
+        <div class="filter-group">
+          <label>Tháng</label>
+          <select id="filter-month" onchange="loadLogs()">
+            <option value="1">Tháng 1</option><option value="2">Tháng 2</option>
+            <option value="3">Tháng 3</option><option value="4">Tháng 4</option>
+            <option value="5">Tháng 5</option><option value="6">Tháng 6</option>
+            <option value="7">Tháng 7</option><option value="8">Tháng 8</option>
+            <option value="9">Tháng 9</option><option value="10">Tháng 10</option>
+            <option value="11">Tháng 11</option><option value="12">Tháng 12</option>
+          </select>
+          <select id="filter-year" onchange="loadLogs()"></select>
+        </div>
+        <div class="toolbar-actions">
+          <button class="btn-secondary" onclick="exportCSV()">⬇ Xuất CSV</button>
+          <button class="btn-danger-outline" onclick="deleteMonth()">🗑 Xóa tháng</button>
+          <button class="btn-primary" onclick="openModal()">＋ Thêm ca</button>
+        </div>
+      </div>
+
+      <!-- ===== STATS CARDS ===== -->
+      <div class="stats-row">
+        <div class="stat-card">
+          <div class="stat-label">Số ngày làm</div>
+          <div class="stat-value" id="stat-days">—</div>
+        </div>
+        <div class="stat-card accent">
+          <div class="stat-label">Tổng tăng ca tháng</div>
+          <div class="stat-value" id="stat-overtime">— giờ</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Trung bình / ngày</div>
+          <div class="stat-value" id="stat-avg">—</div>
+        </div>
+      </div>
+
+      <!-- ===== TABLE ===== -->
+      <div class="table-wrapper">
+        <table id="log-table">
+          <thead>
+            <tr>
+              <th>Ngày</th>
+              <th>Giờ vào</th>
+              <th>Giờ ra lịch</th>
+              <th>Giờ ra thực</th>
+              <th>Tăng ca</th>
+              <th>Hành động</th>
+            </tr>
+          </thead>
+          <tbody id="log-tbody">
+            <tr id="empty-row">
+              <td colspan="6" class="empty-cell">Chưa có dữ liệu cho tháng này.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+    </div><!-- /container -->
+  </div><!-- /app-screen -->
+
+  <!-- ===== MODAL: ADD / EDIT ===== -->
+  <div id="modal-overlay" class="modal-overlay" onclick="closeModalOutside(event)">
+    <div class="modal">
+      <div class="modal-header">
+        <h2 id="modal-title">Thêm ca làm việc</h2>
+        <button class="modal-close" onclick="closeModal()">✕</button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="edit-id" />
+        <div class="field">
+          <label>Ngày làm việc</label>
+          <input type="date" id="f-date" />
+        </div>
+        <div class="field-row">
+          <div class="field">
+            <label>Giờ vào</label>
+            <input type="time" id="f-start" value="09:00" />
+          </div>
+          <div class="field">
+            <label>Giờ ra (lịch)</label>
+            <input type="time" id="f-scheduled" value="18:00" />
+          </div>
+          <div class="field">
+            <label>Giờ ra (thực tế)</label>
+            <input type="time" id="f-real" value="18:00" />
+          </div>
+        </div>
+        <div class="overtime-preview" id="overtime-preview">
+          Tăng ca dự kiến: <strong id="preview-val">0 giờ</strong>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-ghost" onclick="closeModal()">Hủy</button>
+        <button class="btn-primary" onclick="saveLog()">Lưu</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== TOAST ===== -->
+  <div id="toast" class="toast"></div>
+
+  <!-- Supabase CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="script.js"></script>
+</body>
+</html>
