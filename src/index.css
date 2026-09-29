@@ -1,0 +1,6 @@
+@import "tailwindcss";
+html, body { background: #f5f6f3; color: #1f2a2e; -webkit-text-size-adjust: 100%; overflow-x: hidden;
+  font-family: "Hiragino Sans", "Noto Sans JP", "Yu Gothic", Meiryo, sans-serif; }
+ruby { ruby-position: over; }
+rt { font-size: .5em; line-height: 1; font-weight: 400; }
+.jp { line-height: 2; white-space: pre-wrap; overflow-wrap: anywhere; }
