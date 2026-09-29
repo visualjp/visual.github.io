@@ -1,4 +1,4 @@
-import { useMemo, useState, type ButtonHTMLAttributes, type ReactNode } from 'react'
+import { useId, type ButtonHTMLAttributes, type ReactNode } from 'react'
 import type { User } from '../types'
 
 export const inp = 'w-full rounded-lg border border-stone-300 bg-white px-3 py-3 text-base'
@@ -15,24 +15,11 @@ export const Label = ({ t, children }: { t: string; children: ReactNode }) => (
 export const Empty = ({ t }: { t: string }) => <p className="py-3 text-center text-stone-500">{t}</p>
 export const confirmDelete = () => window.confirm('本当に削除しますか？')
 
-/** 利用者セレクタ: 検索 → タップで選択。選択後は名前のみ表示。 */
-export function ResidentSelect({ users, value, onChange }: { users: User[]; value: string; onChange: (id: string) => void }) {
-  const [q, setQ] = useState('')
-  const sel = users.find(u => u.id === value)
-  const k = q.replace(/\s+/g, '')
-  const list = useMemo(() => users.filter(u => u.active && (!k || (u.name + u.furigana).replace(/\s+/g, '').includes(k))).slice(0, 8), [users, k])
-  if (sel) return (
-    <div className="flex items-center justify-between gap-2 rounded-lg border border-teal-700 bg-teal-50 px-3 py-2">
-      <span className="font-bold">{sel.name}<span className="ml-2 text-sm font-normal text-stone-500">{sel.floor}・{sel.area}</span></span>
-      <Btn v="s" onClick={() => { onChange(''); setQ('') }}>変更</Btn>
-    </div>)
-  return (
-    <div className="space-y-1">
-      <input className={inp} placeholder="利用者を検索（例：やまだ）" value={q} onChange={e => setQ(e.target.value)} />
-      <div className="max-h-52 overflow-y-auto rounded-lg border border-stone-200 bg-white">
-        {list.length === 0 ? <p className="p-3 text-center text-sm text-stone-500">{users.length ? '該当なし' : '設定で利用者を登録してください'}</p>
-          : list.map(u => <button key={u.id} type="button" onClick={() => { onChange(u.id); setQ('') }} className="block min-h-11 w-full border-b px-3 text-left last:border-b-0 active:bg-teal-50">
-            {u.name}<span className="ml-2 text-sm text-stone-500">{u.furigana}　{u.floor}・{u.area}</span></button>)}
-      </div>
-    </div>)
+/** 利用者名の自由入力。登録済みの利用者は候補として表示されるだけで、未登録の名前もそのまま入力できる。 */
+export function NameInput({ users, value, onChange }: { users: User[]; value: string; onChange: (v: string) => void }) {
+  const id = useId()
+  return (<>
+    <input className={inp} list={id} placeholder="利用者名（例：山田 太郎）" value={value} onChange={e => onChange(e.target.value)} />
+    <datalist id={id}>{users.filter(u => u.active).map(u => <option key={u.id} value={u.name}>{u.furigana}</option>)}</datalist>
+  </>)
 }

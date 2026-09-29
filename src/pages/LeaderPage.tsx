@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Btn, Card, Empty, Label, ResidentSelect, confirmDelete, inp } from '../components/ui'
+import { Btn, Card, Empty, Label, NameInput, confirmDelete, inp } from '../components/ui'
 import { R } from '../components/Furigana'
 import { useTable } from '../hooks/useTable'
 import { repo, newId } from '../services'
@@ -10,14 +10,14 @@ import type { LeaderEntry, LeaderType, User } from '../types'
 
 function Section({ type, title, date, users, all }: { type: LeaderType; title: string; date: string; users: User[]; all: LeaderEntry[] }) {
   const custom = useTable('eventTypes')
-  const [userId, setU] = useState(''), [time, setT] = useState(''), [content, setC] = useState('')
+  const [userName, setU] = useState(''), [time, setT] = useState(''), [content, setC] = useState('')
   const [sub, setSub] = useState(type === 'short' ? '入所' : '出発')
   const rows = all.filter(e => e.type === type && e.date === date)
   const add = async () => {
-    if (!userId) return alert('利用者を選択してください')
+    if (!userName.trim()) return alert('利用者名を入力してください')
     if ((type === 'visit' || type === 'event') && !time) return alert('時刻を入力してください')
     const now = Date.now()
-    const e: LeaderEntry = { id: newId(), date, type, userId, createdAt: now, updatedAt: now,
+    const e: LeaderEntry = { id: newId(), date, type, userName: userName.trim(), createdAt: now, updatedAt: now,
       ...(type === 'short' ? { status: sub } : {}), ...(type === 'visit' || type === 'event' ? { time } : {}),
       ...(type === 'event' ? { customType: sub, status: content } : {}) }
     await repo.put('leader', e); setU(''); setT(''); setC('')
@@ -26,12 +26,12 @@ function Section({ type, title, date, users, all }: { type: LeaderType; title: s
   return (
     <Card title={<R>{title}</R>}>
       {rows.length === 0 ? <Empty t="まだありません" /> : <ul className="divide-y">{rows.map(e =>
-        <li key={e.id} className="flex items-center justify-between gap-2 py-2"><span><R>{entryLabel(e, users)}</R></span>
+        <li key={e.id} className="flex items-center justify-between gap-2 py-2"><span><R>{entryLabel(e)}</R></span>
           <Btn v="d" onClick={() => confirmDelete() && repo.remove('leader', e.id)}>削除</Btn></li>)}</ul>}
       <div className="space-y-2 rounded-lg bg-stone-50 p-3">
-        <ResidentSelect users={users} value={userId} onChange={setU} />
-        {type === 'short' && <div className="flex gap-2">{['入所', '退所'].map(s => <Btn key={s} v={sub === s ? 'p' : 's'} className="flex-1" onClick={() => setSub(s)}>{s}</Btn>)}</div>}
         {(type === 'visit' || type === 'event') && <input type="time" className={inp} value={time} onChange={e => setT(e.target.value)} />}
+        <NameInput users={users} value={userName} onChange={setU} />
+        {type === 'short' && <div className="flex gap-2">{['入所', '退所'].map(s => <Btn key={s} v={sub === s ? 'p' : 's'} className="flex-1" onClick={() => setSub(s)}>{s}</Btn>)}</div>}
         {type === 'event' && <>
           <select className={inp} value={sub} onChange={e => setSub(e.target.value)}>{[...DEFAULT_EVENT_TYPES, ...custom.map(c => c.name)].map(n => <option key={n}>{n}</option>)}</select>
           <input className={inp} placeholder="内容" value={content} onChange={e => setC(e.target.value)} />

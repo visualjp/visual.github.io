@@ -9,9 +9,9 @@ export const SAMPLE_USERS: User[] = [
   { id: 'sample-3', name: '田中 一郎', furigana: 'たなか いちろう', floor: '2階', area: '光', active: true },
 ]
 export const SAMPLE_SLIPS: Moshiokuri[] = [
-  { id: 'sample-s1', date: d, floor: '2階', category: '経過観察', userId: 'sample-2', content: '体調を確認する。食事量に注意。', status: '継続', createdAt: t, updatedAt: t },
-  { id: 'sample-s2', date: d, floor: '3階', category: '事故', userId: 'sample-1', content: '転倒あり。様子観察中。', status: '継続', createdAt: t, updatedAt: t },
+  { id: 'sample-s1', date: d, floor: '2階', category: '経過観察', userName: '佐藤 花子', content: '体調を確認する。食事量に注意。', status: '継続', createdAt: t, updatedAt: t },
+  { id: 'sample-s2', date: d, floor: '3階', category: '事故', userName: '山田 太郎', content: '転倒あり。様子観察中。', status: '継続', createdAt: t, updatedAt: t },
 ]
 export const SAMPLE_NOTES: MoshiokuriNote[] = [
-  { id: 'sample-n1', area: '山', date: d, userId: 'sample-1', content: '入浴後の血圧を確認する。', createdAt: t, updatedAt: t, expiresAt: t + NOTE_TTL_MS },
+  { id: 'sample-n1', area: '山', date: d, userName: '山田 太郎', content: '入浴後の血圧を確認する。', createdAt: t, updatedAt: t, expiresAt: t + NOTE_TTL_MS },
 ]
