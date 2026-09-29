@@ -22,14 +22,14 @@ export function SummaryBody({ leaderDate, big }: { leaderDate: string; big?: boo
           const cats = CATEGORIES.map(c => ({ c, rows: slips.filter(s => s.floor === fl && s.category === c && s.status === '継続').sort((a, b) => a.date.localeCompare(b.date)) })).filter(x => x.rows.length)
           return cats.length > 0 && <div key={fl} className="space-y-2"><h3 className="font-bold"><R>{fl}</R></h3>
             {cats.map(({ c, rows }) => <div key={c}><h4 className="font-semibold text-stone-600"><R>{c}</R></h4>
-              {rows.map(s => <P key={s.id}>{`・${nm(s.userName)}様（${jpMonthDay(s.date)}）${s.content}`}</P>)}</div>)}</div>
+              {rows.map(s => <P key={s.id}>{`・${nm(s.userName)}氏（${jpMonthDay(s.date)}）${s.content}`}</P>)}</div>)}</div>
         })}
       </section>
       <section className="space-y-3"><H big={big}>申し送りノート</H>
         {AREAS.map(a => {
           const rows = notes.filter(n => n.area === a && n.expiresAt > now).sort((x, y) => x.createdAt - y.createdAt)
           return rows.length > 0 && <div key={a}><h3 className="font-bold"><R>{a}</R></h3>
-            {rows.map(n => <P key={n.id}>{`・${nm(n.userName)}様　${n.content}`}</P>)}</div>
+            {rows.map(n => <P key={n.id}>{`・${nm(n.userName)}氏　${n.content}`}</P>)}</div>
         })}
       </section>
       <section>{CLOSING.map(l => <P key={l}>{l}</P>)}</section>

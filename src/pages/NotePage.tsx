@@ -35,7 +35,7 @@ export default function NotePage() {
       </Card>}
       {AREAS.map(a => { const rows = live.filter(n => n.area === a).sort((x, y) => y.createdAt - x.createdAt)
         return <Card key={a} title={<R>{a}</R>}>{rows.length === 0 ? <Empty t="申し送りなし" /> : rows.map(n => <div key={n.id} className="border-t py-2">
-          <p className="text-sm text-stone-500"><R>{nm(n.userName)}</R>様　{n.date}　保存期限 {fmtTime(n.expiresAt)}</p>
+          <p className="text-sm text-stone-500"><R>{nm(n.userName)}</R>氏　{n.date}　保存期限 {fmtTime(n.expiresAt)}</p>
           <p className="jp"><R>{n.content}</R></p>
           <div className="mt-1 flex gap-2"><Btn v="s" onClick={() => { setEd(n); setF(n); setOpen(true); scrollTo(0, 0) }}>編集</Btn><Btn v="d" onClick={() => confirmDelete() && repo.remove('notes', n.id)}>削除</Btn></div></div>)}</Card> })}
     </div>)

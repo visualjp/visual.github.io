@@ -1,4 +1,4 @@
-import { useId, type ButtonHTMLAttributes, type ReactNode } from 'react'
+import { useMemo, useState, type ButtonHTMLAttributes, type ReactNode } from 'react'
 import type { User } from '../types'
 
 export const inp = 'w-full rounded-lg border border-stone-300 bg-white px-3 py-3 text-base'
@@ -15,11 +15,21 @@ export const Label = ({ t, children }: { t: string; children: ReactNode }) => (
 export const Empty = ({ t }: { t: string }) => <p className="py-3 text-center text-stone-500">{t}</p>
 export const confirmDelete = () => window.confirm('本当に削除しますか？')
 
-/** 利用者名の自由入力。登録済みの利用者は候補として表示されるだけで、未登録の名前もそのまま入力できる。 */
+/** 利用者名: 自由入力 + 登録済みリストからタップで選択（どちらでも可）。 */
 export function NameInput({ users, value, onChange }: { users: User[]; value: string; onChange: (v: string) => void }) {
-  const id = useId()
-  return (<>
-    <input className={inp} list={id} placeholder="利用者名（例：山田 太郎）" value={value} onChange={e => onChange(e.target.value)} />
-    <datalist id={id}>{users.filter(u => u.active).map(u => <option key={u.id} value={u.name}>{u.furigana}</option>)}</datalist>
-  </>)
+  const [open, setOpen] = useState(false)
+  const k = value.replace(/\s+/g, '')
+  const list = useMemo(() => users.filter(u => u.active && (!k || (u.name + u.furigana).replace(/\s+/g, '').includes(k))), [users, k])
+  const exact = users.some(u => u.name.replace(/\s+/g, '') === k)
+  return (
+    <div className="space-y-1">
+      <input className={inp} placeholder="利用者名を入力 または 下から選択" value={value}
+        onFocus={() => setOpen(true)} onBlur={() => setOpen(false)} onChange={e => { onChange(e.target.value); setOpen(true) }} />
+      {open && !exact && list.length > 0 && (
+        <div className="max-h-52 overflow-y-auto rounded-lg border border-stone-200 bg-white">
+          {list.map(u => <button key={u.id} type="button" onMouseDown={e => e.preventDefault()} onClick={() => { onChange(u.name); setOpen(false) }}
+            className="block min-h-11 w-full border-b px-3 text-left last:border-b-0 active:bg-teal-50">
+            {u.name}<span className="ml-2 text-sm text-stone-500">{u.furigana}　{u.floor}・{u.area}</span></button>)}
+        </div>)}
+    </div>)
 }

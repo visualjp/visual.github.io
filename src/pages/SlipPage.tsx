@@ -47,7 +47,7 @@ export default function SlipPage() {
         {CATEGORIES.map(c => { const rows = slips.filter(s => s.floor === fl && s.category === c && match(s)).sort((a, b) => b.date.localeCompare(a.date))
           return <div key={c}><h3 className="font-bold text-stone-700"><R>{c}</R></h3>
             {rows.length === 0 ? <Empty t="記録なし" /> : rows.map(s => <div key={s.id} className="border-t py-2">
-              <p className="text-sm text-stone-500">{s.date}　<R>{nm(s.userName)}</R>様　<span className={s.status === '継続' ? 'font-bold text-teal-700' : ''}>{s.status === '継続' ? '継続中' : '終了済み'}</span></p>
+              <p className="text-sm text-stone-500">{s.date}　<R>{nm(s.userName)}</R>氏　<span className={s.status === '継続' ? 'font-bold text-teal-700' : ''}>{s.status === '継続' ? '継続中' : '終了済み'}</span></p>
               <p className="jp"><R>{s.content}</R></p>
               <div className="mt-1 flex gap-2"><Btn v="s" onClick={() => { setEd(s); setF(s); scrollTo(0, 0) }}>編集</Btn><Btn v="d" onClick={() => confirmDelete() && repo.remove('slips', s.id)}>削除</Btn></div></div>)}</div> })}
       </Card>)}
