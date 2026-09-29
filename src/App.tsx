@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { FuriganaCtx, FuriganaToggle } from './components/Furigana'
 import { useTable } from './hooks/useTable'
 import { repo } from './services'
-import { buildDict } from './utils/furigana'
+import { buildDict, loadTokenizer } from './utils/furigana'
 import { jpDate, ymd } from './utils/date'
 import LeaderPage from './pages/LeaderPage'
 import SlipPage from './pages/SlipPage'
@@ -11,16 +11,18 @@ import SummaryPage from './pages/SummaryPage'
 import SettingsPage from './pages/SettingsPage'
 import ReadingMode from './pages/ReadingMode'
 
-const TABS = ['リーダー', '利用者もし送り紙', 'もし送りノート', '総合もし送り']
+const TABS = ['リーダー', '利用者申し送り紙', '申し送りノート', '総合申し送り']
 
 export default function App() {
   const users = useTable('users')
   const [tab, setTab] = useState(0), [settings, setSettings] = useState(false), [reading, setReading] = useState(false)
+  const [ready, setReady] = useState(false)
+  useEffect(() => { loadTokenizer().then(setReady) }, [])
   const [on, setOn] = useState(true), [date, setDate] = useState(ymd(new Date()))
   const dict = useMemo(() => buildDict(users), [users])
   useEffect(() => { repo.purgeExpiredNotes(); const t = setInterval(() => repo.purgeExpiredNotes(), 60000); return () => clearInterval(t) }, [])
   return (
-    <FuriganaCtx.Provider value={{ on, setOn, dict }}>
+    <FuriganaCtx.Provider value={{ on, setOn, dict, ready }}>
       {reading ? <ReadingMode date={date} onClose={() => setReading(false)} /> : (
         <div className="mx-auto min-h-dvh max-w-2xl pb-28">
           <header className="sticky top-0 z-10 flex items-center justify-between border-b bg-teal-800 px-4 py-2 text-white" style={{ paddingTop: 'max(env(safe-area-inset-top),.5rem)' }}>

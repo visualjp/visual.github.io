@@ -64,7 +64,7 @@ export default function LeaderPage({ date, setDate }: { date: string; setDate: (
       <Section type="short" title="ショート" {...p} />
       <Section type="visit" title="面会" {...p} />
       <Section type="event" title="出発 / その他" {...p} />
-      <Btn className="w-full py-4 text-lg" onClick={() => setPreview(!preview)}>もし送りを作成</Btn>
+      <Btn className="w-full py-4 text-lg" onClick={() => setPreview(!preview)}>申し送りを作成</Btn>
       {preview && <Card title="作成された申し送り">{leaderText(all, users, date).map((l, i) => <p key={i} className="jp"><R>{l}</R></p>)}</Card>}
     </div>)
 }

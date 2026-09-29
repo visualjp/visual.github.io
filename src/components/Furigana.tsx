@@ -1,7 +1,7 @@
 import { createContext, useContext } from 'react'
 import { furigana, type Dict } from '../utils/furigana'
 
-export const FuriganaCtx = createContext<{ on: boolean; setOn: (v: boolean) => void; dict: Dict }>({ on: true, setOn: () => {}, dict: new Map() })
+export const FuriganaCtx = createContext<{ on: boolean; setOn: (v: boolean) => void; dict: Dict; ready?: boolean }>({ on: true, setOn: () => {}, dict: new Map() })
 export const useFurigana = () => useContext(FuriganaCtx)
 
 /** 表示専用のふりがな層。元テキストは変更しない。 */
