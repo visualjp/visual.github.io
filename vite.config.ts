@@ -8,6 +8,6 @@ export default defineConfig({
     react(),
     tailwindcss(),
     // manifest lives in public/manifest.webmanifest
-    VitePWA({ registerType: 'autoUpdate', manifest: false, workbox: { globPatterns: ['**/*.{js,css,html,png,webmanifest}'] } }),
+    VitePWA({ registerType: 'autoUpdate', manifest: false, workbox: { globPatterns: ['**/*.{js,css,html,png,webmanifest}'], runtimeCaching: [{ urlPattern: /\/dict\//, handler: 'CacheFirst', options: { cacheName: 'dict', expiration: { maxEntries: 20 } } }] } }),
   ],
 })
