@@ -17,15 +17,16 @@ export default function AuthGate({ children }: { children: ReactNode }) {
   if (s === undefined) return <p className="p-8 text-center text-stone-500">読み込み中…</p>
   const login = async (e: React.FormEvent) => {
     e.preventDefault()
-    const { error } = await sb!.auth.signInWithPassword({ email, password: pw })
-    setErr(error ? 'メールまたはパスワードが違います' : '')
+    const { error } = await sb!.auth.signInWithPassword({ email: email.trim(), password: pw })
+    if (error) console.error('[auth] login failed:', error.message, error.status)
+    setErr(error ? `ログインできません: ${error.message}${error.status ? ` (${error.status})` : ''}` : '')
   }
   return (
     <form onSubmit={login} className="mx-auto max-w-sm space-y-4 p-4 pt-16">
       <Card title="申し送りアプリ ログイン">
-        <Label t="メールアドレス"><input className={inp} type="email" autoComplete="username" value={email} onChange={e => setEmail(e.target.value)} /></Label>
+        <Label t="メールアドレス"><input className={inp} type="email" autoComplete="username" autoCapitalize="none" autoCorrect="off" value={email} onChange={e => setEmail(e.target.value)} /></Label>
         <Label t="パスワード"><input className={inp} type="password" autoComplete="current-password" value={pw} onChange={e => setPw(e.target.value)} /></Label>
-        {err && <p className="text-red-700">{err}</p>}
+        {err && <p className="break-words text-red-700">{err}</p>}
         <Btn className="w-full" type="submit">ログイン</Btn>
       </Card>
     </form>)
