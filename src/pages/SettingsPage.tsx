@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Btn, Card, Empty, Label, confirmDelete, inp } from '../components/ui'
 import { useTable } from '../hooks/useTable'
-import { repo, newId } from '../services'
+import { repo, localRepo, cloudEnabled, sb, newId } from '../services'
 import { AREAS, FLOORS } from '../data/constants'
 import { SAMPLE_NOTES, SAMPLE_SLIPS, SAMPLE_USERS } from '../data/sample'
 import type { User } from '../types'
@@ -20,6 +20,15 @@ export default function SettingsPage() {
     for (const u of SAMPLE_USERS) await repo.put('users', u)
     for (const s of SAMPLE_SLIPS) await repo.put('slips', s)
     for (const n of SAMPLE_NOTES) await repo.put('notes', n)
+  }
+  const migrate = async () => {
+    if (!confirm('この端末のデータをクラウドへコピーしますか？（同じIDは上書き）')) return
+    let n = 0
+    for (const t of ['users', 'leader', 'slips', 'notes', 'eventTypes'] as const) {
+      const rows = await new Promise<unknown[]>(res => { let un = () => {}; un = localRepo.watch(t, r => { un(); res(r) }) })
+      for (const r of rows) { await repo.put(t, r as never); n++ }
+    }
+    alert(`${n}件を移行しました`)
   }
   const k = q.replace(/\s+/g, '')
   const list = users.filter(u => !k || (u.name + u.furigana).replace(/\s+/g, '').includes(k))
@@ -40,6 +49,10 @@ export default function SettingsPage() {
         {list.length === 0 ? <Empty t="利用者が登録されていません" /> : list.map(u => <div key={u.id} className="flex items-center justify-between gap-2 border-t py-2">
           <div><p className="font-bold"><ruby>{u.name}<rt>{u.furigana}</rt></ruby></p><p className="text-sm text-stone-500">{u.floor}・{u.area}{u.active ? '' : '（利用停止）'}</p></div>
           <div className="flex gap-2"><Btn v="s" onClick={() => { setF(u); scrollTo(0, 0) }}>編集</Btn><Btn v="d" onClick={() => confirmDelete() && repo.remove('users', u.id)}>削除</Btn></div></div>)}
+      </Card>
+      <Card title="保存先">
+        <p>{cloudEnabled ? 'クラウド（Supabase）— 全員で共有されます' : 'この端末のみ（IndexedDB）'}</p>
+        {cloudEnabled && <><Btn v="s" onClick={migrate}>この端末のデータをクラウドへ移行</Btn><Btn v="d" onClick={() => sb?.auth.signOut()}>ログアウト</Btn></>}
       </Card>
       <Card title="テスト用データ">
         <p className="text-sm text-stone-600">データはこの端末のIndexedDBにのみ保存され、外部には送信されません。</p>

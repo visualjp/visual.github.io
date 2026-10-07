@@ -2,3 +2,4 @@ node_modules
 dist
 public/dict
 public/kuromoji.js
+.env
