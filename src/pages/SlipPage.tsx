@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import BulkImport from '../components/BulkImport'
 import { Btn, Card, Empty, Label, NameInput, confirmDelete, inp } from '../components/ui'
 import { R } from '../components/Furigana'
 import { useTable } from '../hooks/useTable'
@@ -39,6 +40,7 @@ export default function SlipPage() {
         <div className="flex gap-2">{(['継続', '終了'] as const).map(s => <Btn key={s} v={f.status === s ? 'p' : 's'} className="flex-1" onClick={() => set('status', s)}>{s}</Btn>)}</div>
         <div className="flex gap-2"><Btn className="flex-1" onClick={save}>保存</Btn>{ed && <Btn v="s" onClick={() => { setEd(null); setF(blank()) }}>キャンセル</Btn>}</div>
       </Card>
+      <BulkImport />
       <div className="flex gap-2">
         <input className={inp} placeholder="検索（名前・ふりがな・内容）" value={q} onChange={e => setQ(e.target.value)} />
         <select className={`${inp} w-32`} value={sf} onChange={e => setSf(e.target.value as typeof sf)}><option value="all">すべて</option><option value="継続">継続中</option><option value="終了">終了済み</option></select>
