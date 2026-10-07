@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { FuriganaCtx, FuriganaToggle } from './components/Furigana'
 import { useTable } from './hooks/useTable'
-import { repo } from './services'
+import { repo, cloudEnabled, cloudConfigError } from './services'
 import { buildDict, loadTokenizer } from './utils/furigana'
 import { jpDate, ymd } from './utils/date'
 import LeaderPage from './pages/LeaderPage'
@@ -26,11 +26,12 @@ export default function App() {
       {reading ? <ReadingMode date={date} onClose={() => setReading(false)} /> : (
         <div className="mx-auto min-h-dvh max-w-2xl pb-28">
           <header className="sticky top-0 z-10 flex items-center justify-between border-b bg-teal-800 px-4 py-2 text-white" style={{ paddingTop: 'max(env(safe-area-inset-top),.5rem)' }}>
-            <div><p className="font-bold">{settings ? '設定' : TABS[tab]}</p><p className="text-xs opacity-80">{jpDate(ymd(new Date()))}</p></div>
+            <div><p className="font-bold">{settings ? '設定' : TABS[tab]}</p><p className="text-xs opacity-80">{jpDate(ymd(new Date()))}　{cloudEnabled ? <span>☁ クラウド保存</span> : <span className="rounded bg-amber-300 px-1 font-bold text-stone-900">⚠ この端末のみ（未同期）</span>}</p></div>
             <div className="flex gap-2"><span className="rounded-full bg-white"><FuriganaToggle /></span>
               <button onClick={() => setSettings(!settings)} className="min-h-10 rounded-full bg-white px-3 text-sm font-semibold text-teal-800">{settings ? '戻る' : '設定'}</button></div>
           </header>
           <main className="p-4">
+            {cloudConfigError && <p className="mb-3 rounded-lg bg-red-100 p-3 font-bold text-red-800">{cloudConfigError}</p>}
             {settings ? <SettingsPage /> : tab === 0 ? <LeaderPage date={date} setDate={setDate} /> : tab === 1 ? <SlipPage />
               : tab === 2 ? <NotePage /> : <SummaryPage date={date} onRead={() => setReading(true)} />}
           </main>

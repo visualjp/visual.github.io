@@ -30,6 +30,18 @@ export default function SettingsPage() {
     }
     alert(`${n}件を移行しました`)
   }
+  const test = async () => {
+    if (!sb) return
+    const log: string[] = [], id = 'diag-' + Date.now()
+    log.push((await sb.auth.getSession()).data.session ? '✔ ログイン済み' : '✘ 未ログイン')
+    const ins = await sb.from('records').insert({ tbl: 'diag', id, data: { ok: true } }).select('id')
+    log.push(ins.error ? `✘ INSERT: ${ins.error.message}` : '✔ INSERT')
+    const sel = await sb.from('records').select('id').eq('id', id)
+    log.push(sel.error || !sel.data?.length ? '✘ SELECT' : '✔ SELECT')
+    const del = await sb.from('records').delete().eq('id', id).select('id')
+    log.push(del.error || !del.data?.length ? `✘ DELETE ${del.error?.message ?? ''}` : '✔ DELETE')
+    alert(log.join('\n'))
+  }
   const k = q.replace(/\s+/g, '')
   const list = users.filter(u => !k || (u.name + u.furigana).replace(/\s+/g, '').includes(k))
   return (
@@ -52,7 +64,8 @@ export default function SettingsPage() {
       </Card>
       <Card title="保存先">
         <p>{cloudEnabled ? 'クラウド（Supabase）— 全員で共有されます' : 'この端末のみ（IndexedDB）'}</p>
-        {cloudEnabled && <><Btn v="s" onClick={migrate}>この端末のデータをクラウドへ移行</Btn><Btn v="d" onClick={() => sb?.auth.signOut()}>ログアウト</Btn></>}
+        {!cloudEnabled && <p className="text-sm text-red-700">クラウド未接続: プロジェクト直下の .env を確認し、npm run dev を再起動してください。</p>}
+        {cloudEnabled && <><Btn v="s" onClick={test}>接続テスト</Btn><Btn v="s" onClick={migrate}>この端末のデータをクラウドへ移行</Btn><Btn v="d" onClick={() => sb?.auth.signOut()}>ログアウト</Btn></>}
       </Card>
       <Card title="テスト用データ">
         <p className="text-sm text-stone-600">データはこの端末のIndexedDBにのみ保存され、外部には送信されません。</p>
