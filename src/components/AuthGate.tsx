@@ -23,7 +23,7 @@ export default function AuthGate({ children }: { children: ReactNode }) {
   }
   return (
     <form onSubmit={login} className="mx-auto max-w-sm space-y-4 p-4 pt-16">
-      <Card title="申し送りアプリ ログイン">
+      <Card title={<>申し送りアプリ ログイン<span className="ml-2 text-xs font-normal text-stone-400">by LinhJx</span></>}>
         <Label t="メールアドレス"><input className={inp} type="email" autoComplete="username" autoCapitalize="none" autoCorrect="off" value={email} onChange={e => setEmail(e.target.value)} /></Label>
         <Label t="パスワード"><input className={inp} type="password" autoComplete="current-password" value={pw} onChange={e => setPw(e.target.value)} /></Label>
         {err && <p className="break-words text-red-700">{err}</p>}

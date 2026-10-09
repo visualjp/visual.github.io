@@ -16,4 +16,6 @@ export interface MoshiokuriNote {
   id: string; area: Area; date: string; userName: string; content: string
   createdAt: number; updatedAt: number; expiresAt: number
 }
+/** ふりがな修正辞書（単語 → 読み） */
+export interface Reading { id: string; word: string; reading: string }
 export interface CustomEventType { id: string; name: string }

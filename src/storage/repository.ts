@@ -1,6 +1,6 @@
-import type { CustomEventType, LeaderEntry, Moshiokuri, MoshiokuriNote, User } from '../types'
+import type { CustomEventType, Reading, LeaderEntry, Moshiokuri, MoshiokuriNote, User } from '../types'
 
-export interface TableMap { users: User; leader: LeaderEntry; slips: Moshiokuri; notes: MoshiokuriNote; eventTypes: CustomEventType }
+export interface TableMap { users: User; leader: LeaderEntry; slips: Moshiokuri; notes: MoshiokuriNote; eventTypes: CustomEventType; readings: Reading }
 export type TableName = keyof TableMap
 
 /** UIはこのインターフェースだけに依存する。Supabase/Firebase/PostgreSQL 実装に差し替え可能。 */

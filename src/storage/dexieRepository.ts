@@ -13,6 +13,8 @@ db.version(2).stores({}).upgrade(async tx => {
     })
 })
 
+db.version(3).stores({ readings: 'id' }) // v3: ふりがな修正辞書
+
 export const dexieRepository: Repository = {
   watch(table, cb) {
     const sub = liveQuery(() => db.table(table).toArray()).subscribe({ next: cb as (r: unknown[]) => void, error: () => console.error('DB error') })

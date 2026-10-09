@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import BulkImport from '../components/BulkImport'
 import { Btn, Card, Empty, Label, NameInput, confirmDelete, inp } from '../components/ui'
 import { R } from '../components/Furigana'
 import { useTable } from '../hooks/useTable'
@@ -26,6 +27,7 @@ export default function NotePage() {
   return (
     <div className="space-y-4">
       {!open && <Btn className="w-full py-4 text-lg" onClick={() => setOpen(true)}>＋ 申し送りを追加</Btn>}
+      {!open && <BulkImport mode="notes" />}
       {open && <Card title={ed ? '編集' : '申し送りを追加'}>
         <Label t="エリア"><div className="flex gap-2">{AREAS.map(a => <Btn key={a} v={f.area === a ? 'p' : 's'} className="flex-1 text-lg" onClick={() => set('area', a)}>{a}</Btn>)}</div></Label>
         <Label t="利用者名"><NameInput users={users} value={f.userName} onChange={v => set('userName', v)} /></Label>

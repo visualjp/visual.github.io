@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
-import { FuriganaCtx, FuriganaToggle } from './components/Furigana'
+import { FuriganaCtx, FuriganaToggle, FixToggle } from './components/Furigana'
 import { useTable } from './hooks/useTable'
-import { repo, cloudEnabled, cloudConfigError } from './services'
+import { repo, newId, cloudEnabled, cloudConfigError } from './services'
 import { buildDict, loadTokenizer } from './utils/furigana'
 import { jpDate, ymd } from './utils/date'
 import LeaderPage from './pages/LeaderPage'
@@ -19,15 +19,23 @@ export default function App() {
   const [ready, setReady] = useState(false)
   useEffect(() => { loadTokenizer().then(setReady) }, [])
   const [on, setOn] = useState(true), [date, setDate] = useState(ymd(new Date()))
-  const dict = useMemo(() => buildDict(users), [users])
+  const readings = useTable('readings'), [fixMode, setFixMode] = useState(false)
+  const dict = useMemo(() => buildDict(users, readings), [users, readings])
+  /** ふりがなの誤りをタップで修正 → 辞書に保存（全員に共有） */
+  const fix = async (word: string, cur: string) => {
+    const r = prompt(`「${word}」の正しい読み（ひらがな）\n※空欄で保存すると辞書から削除します`, cur)
+    if (r === null) return
+    if (r.trim()) await repo.put('readings', { id: `r:${word}`, word, reading: r.trim() })
+    else await repo.remove('readings', `r:${word}`)
+  }
   useEffect(() => { repo.purgeExpiredNotes(); const t = setInterval(() => repo.purgeExpiredNotes(), 60000); return () => clearInterval(t) }, [])
   return (
-    <FuriganaCtx.Provider value={{ on, setOn, dict, ready }}>
+    <FuriganaCtx.Provider value={{ on, setOn, dict, ready, fixMode, setFixMode, fix }}>
       {reading ? <ReadingMode date={date} onClose={() => setReading(false)} /> : (
         <div className="mx-auto min-h-dvh max-w-2xl pb-28">
-          <header className="sticky top-0 z-10 flex items-center justify-between border-b bg-teal-800 px-4 py-2 text-white" style={{ paddingTop: 'max(env(safe-area-inset-top),.5rem)' }}>
-            <div><p className="font-bold">{settings ? '設定' : TABS[tab]}</p><p className="text-xs opacity-80">{jpDate(ymd(new Date()))}　{cloudEnabled ? <span>☁ クラウド保存</span> : <span className="rounded bg-amber-300 px-1 font-bold text-stone-900">⚠ この端末のみ（未同期）</span>}</p></div>
-            <div className="flex gap-2"><span className="rounded-full bg-white"><FuriganaToggle /></span>
+          <header className="sticky top-0 z-10 flex flex-wrap items-center gap-2 justify-between border-b bg-teal-800 px-4 py-2 text-white" style={{ paddingTop: 'max(env(safe-area-inset-top),.5rem)' }}>
+            <div><p className="font-bold">{settings ? '設定' : TABS[tab]}<span className="ml-2 text-[10px] font-normal opacity-70">by LinhJx</span></p><p className="text-xs opacity-80">{jpDate(ymd(new Date()))}　{cloudEnabled ? <span>☁ クラウド保存</span> : <span className="rounded bg-amber-300 px-1 font-bold text-stone-900">⚠ この端末のみ（未同期）</span>}</p></div>
+            <div className="flex flex-wrap justify-end gap-2"><span className="rounded-full bg-white"><FuriganaToggle /></span><span className="rounded-full bg-white"><FixToggle /></span>
               <button onClick={() => setSettings(!settings)} className="min-h-10 rounded-full bg-white px-3 text-sm font-semibold text-teal-800">{settings ? '戻る' : '設定'}</button></div>
           </header>
           <main className="p-4">

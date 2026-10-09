@@ -18,7 +18,13 @@ function add(dict: Dict, tok: string) {
   dict.set(text, [...tok.matchAll(/[\u4e00-\u9fff々]+\(([^)]+)\)/g)].map(m => m[1]))
 }
 /** 基本辞書 + 利用者名（設定の name/furigana から自動生成）。辞書にない漢字はそのまま表示。 */
-export function buildDict(users: User[]): Dict {
+function addCustom(dict: Dict, word: string, reading: string) {
+  const p = word.split(KANJI) // 漢字が1か所なら送り仮名を除いた読みだけをふりがなにする
+  if (p.length === 3 && reading.startsWith(p[0]) && reading.endsWith(p[2]) && reading.length > p[0].length + p[2].length)
+    dict.set(word, [reading.slice(p[0].length, reading.length - p[2].length)])
+  else dict.set(word, [reading]) // 複数の漢字がある語は語全体にふりがな
+}
+export function buildDict(users: User[], readings: { word: string; reading: string }[] = []): Dict {
   const dict: Dict = new Map()
   BASE.split(/\s+/).forEach(t => add(dict, t))
   for (const u of users) {
@@ -26,6 +32,7 @@ export function buildDict(users: User[]): Dict {
     if (n.length === f.length) n.forEach((x, i) => f[i] && dict.set(x, [f[i]]))
     else dict.set(u.name.replace(/\s+/g, ''), [u.furigana.replace(/\s+/g, '')])
   }
+  readings.forEach(r => addCustom(dict, r.word, r.reading)) // 修正辞書が最優先
   return dict
 }
 type Tok = { surface_form: string; reading?: string }
@@ -65,6 +72,7 @@ export function furigana(text: string, dict: Dict): Seg[] {
     }
     if (!hit) { out.push({ t: text[i] }); i++; continue }
     const rs = [...(dict.get(hit) ?? [])]
+    if (rs.length === 1 && hit.split(KANJI).filter((_, k) => k % 2).length > 1) { out.push({ t: hit, r: rs[0] }); i += hit.length; continue }
     hit.split(KANJI).forEach((p, k) => { if (p) out.push(k % 2 ? { t: p, r: rs.shift() } : { t: p }) })
     i += hit.length
   }

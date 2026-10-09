@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import LeaderBulkImport from '../components/LeaderBulkImport'
 import { Btn, Card, Empty, Label, NameInput, confirmDelete, inp } from '../components/ui'
 import { R } from '../components/Furigana'
 import { useTable } from '../hooks/useTable'
@@ -56,6 +57,7 @@ export default function LeaderPage({ date, setDate }: { date: string; setDate: (
       <Card title={<R>{jpDate(date)}</R>}>
         <Label t="日付を変更"><input type="date" className={inp} value={date} onChange={e => e.target.value && setDate(e.target.value)} /></Label>
       </Card>
+      <LeaderBulkImport date={date} />
       <Card title={<R>入浴</R>}>
         <div className="flex flex-wrap gap-2">{WEEKDAYS.map(w => { const on = days.some(e => e.customType === w)
           return <button key={w} onClick={() => toggle(w)} className={`h-12 w-12 rounded-lg border text-lg font-bold ${on ? 'border-teal-700 bg-teal-700 text-white' : 'border-stone-300 bg-white'}`}>{w}</button> })}</div>

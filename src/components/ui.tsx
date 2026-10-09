@@ -33,3 +33,23 @@ export function NameInput({ users, value, onChange }: { users: User[]; value: st
         </div>)}
     </div>)
 }
+
+export async function copyText(t: string) {
+  try { await navigator.clipboard.writeText(t) } catch { const a = document.createElement('textarea'); a.value = t; document.body.appendChild(a); a.select(); document.execCommand('copy'); a.remove() }
+}
+/** AI(Gemini等)に送る指示文と手順の説明（コピーボタン付き） */
+export function PromptGuide({ prompt }: { prompt: string }) {
+  const [done, setDone] = useState(false)
+  return (
+    <div className="space-y-2 rounded-lg bg-teal-50 p-3 text-sm">
+      <p className="font-bold text-teal-900">使い方</p>
+      <ol className="list-decimal space-y-1 pl-5">
+        <li>下の指示文をコピー</li>
+        <li><a className="font-bold underline" href="https://gemini.google.com/app" target="_blank" rel="noreferrer">Geminiを開く</a>で、写真を添付し、指示文を貼り付けて送信</li>
+        <li>返ってきた文章をコピーして、下の枠に貼り付け</li>
+        <li>「読み取る」→ 内容を確認・修正 → 保存</li>
+      </ol>
+      <pre className="whitespace-pre-wrap rounded border bg-white p-2 text-xs">{prompt}</pre>
+      <Btn className="w-full" onClick={async () => { await copyText(prompt); setDone(true); setTimeout(() => setDone(false), 2000) }}>{done ? '✔ コピーしました' : '指示文をコピー'}</Btn>
+    </div>)
+}

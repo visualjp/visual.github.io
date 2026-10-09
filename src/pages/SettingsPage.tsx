@@ -42,6 +42,11 @@ export default function SettingsPage() {
     log.push(del.error || !del.data?.length ? `✘ DELETE ${del.error?.message ?? ''}` : '✔ DELETE')
     alert(log.join('\n'))
   }
+  const readings = useTable('readings'), [w, setW] = useState(''), [rd, setRd] = useState('')
+  const addReading = async () => {
+    if (!w.trim() || !rd.trim()) return alert('単語と読みを入力してください')
+    await repo.put('readings', { id: `r:${w.trim()}`, word: w.trim(), reading: rd.trim() }); setW(''); setRd('')
+  }
   const k = q.replace(/\s+/g, '')
   const list = users.filter(u => !k || (u.name + u.furigana).replace(/\s+/g, '').includes(k))
   return (
@@ -62,6 +67,13 @@ export default function SettingsPage() {
           <div><p className="font-bold"><ruby>{u.name}<rt>{u.furigana}</rt></ruby></p><p className="text-sm text-stone-500">{u.floor}・{u.area}{u.active ? '' : '（利用停止）'}</p></div>
           <div className="flex gap-2"><Btn v="s" onClick={() => { setF(u); scrollTo(0, 0) }}>編集</Btn><Btn v="d" onClick={() => confirmDelete() && repo.remove('users', u.id)}>削除</Btn></div></div>)}
       </Card>
+      <Card title="ふりがな修正辞書">
+        <p className="text-sm text-stone-600">読みが間違っているときは、ここに登録するか、ヘッダーの「✎ 読み修正」をONにして漢字をタップして直せます。全員に共有されます。</p>
+        <div className="grid grid-cols-2 gap-2"><input className={inp} placeholder="単語（漢字）" value={w} onChange={e => setW(e.target.value)} /><input className={inp} placeholder="読み（ひらがな）" value={rd} onChange={e => setRd(e.target.value)} /></div>
+        <Btn onClick={addReading}>＋ 追加</Btn>
+        {readings.length === 0 ? <Empty t="登録なし" /> : readings.map(r => <div key={r.id} className="flex items-center justify-between border-t py-2"><span><ruby>{r.word}<rt>{r.reading}</rt></ruby></span><Btn v="d" onClick={() => confirmDelete() && repo.remove('readings', r.id)}>削除</Btn></div>)}
+      </Card>
+      <p className="py-2 text-center text-xs text-stone-400">申し送りアプリ by LinhJx</p>
       <Card title="保存先">
         <p>{cloudEnabled ? 'クラウド（Supabase）— 全員で共有されます' : 'この端末のみ（IndexedDB）'}</p>
         {!cloudEnabled && <p className="text-sm text-red-700">クラウド未接続: プロジェクト直下の .env を確認し、npm run dev を再起動してください。</p>}
